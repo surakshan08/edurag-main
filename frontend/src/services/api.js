@@ -1,6 +1,6 @@
 import axios from "axios";
 
-const API_URL = "https://edurag-main-production.up.railway.app/chat";
+const API_URL = "https://edurag-main-production.up.railway.app";
 
 export async function sendChatMessage(query) {
   const response = await fetch(API_URL, {
