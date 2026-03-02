@@ -10,7 +10,7 @@ class CampusRAGChatbot:
         self,
         embedding_model: str = "all-MiniLM-L6-v2",
         llm_model: str = "google/flan-t5-small",
-        top_k: int = 3
+        top_k: int = 2
     ):
         self.vector_store = VectorStore(embedding_model)
         self.generator = LLMGenerator(llm_model)
@@ -20,23 +20,36 @@ class CampusRAGChatbot:
         self.vector_store.build_index(chunks)
 
     def query(self, question: str) -> Dict:
-        results = self.vector_store.search(question, k=self.top_k)
+    results = self.vector_store.search(question, k=self.top_k)
 
-        context_parts = []
-        sources = []
+    # 🔎 Filter low-relevance chunks
+    filtered_results = []
+    for chunk, score in results:
+        if score < 1.2:   # you can tune this threshold
+            filtered_results.append((chunk, score))
 
-        for chunk, score in results:
-            context_parts.append(chunk["content"])
-            sources.append({
-                "category": chunk["category"],
-                "distance": score
-            })
-
-        context = "\n\n".join(context_parts)
-        answer = self.generator.generate_answer(question, context)
-
+    if not filtered_results:
         return {
             "question": question,
-            "answer": answer,
-            "sources": sources
+            "answer": "The information is not available in the provided college data.",
+            "sources": []
         }
+
+    context_parts = []
+    sources = []
+
+    for chunk, score in filtered_results:
+        context_parts.append(chunk["content"])
+        sources.append({
+            "category": chunk["category"],
+            "distance": score
+        })
+
+    context = "\n\n".join(context_parts)
+    answer = self.generator.generate_answer(question, context)
+
+    return {
+        "question": question,
+        "answer": answer,
+        "sources": sources
+    }
