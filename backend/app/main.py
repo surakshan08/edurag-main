@@ -18,9 +18,4 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
-
-@app.on_event("startup")
-def startup_event():
-    state.chatbot = initialize_chatbot()
-
 app.include_router(router)
