@@ -9,7 +9,7 @@ class CampusRAGChatbot:
     def __init__(
         self,
         embedding_model: str = "all-MiniLM-L6-v2",
-        llm_model: str = "google/flan-t5-base",
+        llm_model: str = "google/flan-t5-small",
         top_k: int = 3
     ):
         self.vector_store = VectorStore(embedding_model)
